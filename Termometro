@@ -1,0 +1,89 @@
+// Dichiarazione delle variabili necessarie per il calcolo della temperatura
+int step=0;
+double volt=0.0;
+double temp=0.0;
+int unit=0;
+int dec=0;
+int tempint=0;
+
+// Dichiarazione delle variabili di unità e decine per la visualizzazione a LED
+bool unitd0=0;
+bool unitd1=0;
+bool unitd2=0;
+bool unitd3=0;
+
+bool decd0=0;
+bool decd1=0;
+bool decd2=0;
+bool decd3=0;
+
+// Configurazione dei pin del microcontrolle
+void setup() {
+  pinMode(11, OUTPUT); // Pin per il bit meno significativo delle unità
+  pinMode(10, OUTPUT); // Pin per il secondo bit meno significativo delle unità
+  pinMode(9, OUTPUT); // Pin per il terzo bit meno significativo delle unità
+  pinMode(8, OUTPUT); // Pin per il bit più significativo delle unità
+  pinMode(6, OUTPUT); // Pin per il bit meno significativo delle decine
+  pinMode(5, OUTPUT); // Pin per il secondo bit meno significativo delle decine
+  pinMode(4, OUTPUT); // Pin per il terzo bit meno significativo delle decine
+  pinMode(3, OUTPUT); // Pin per il bit più significativo delle decine
+  pinMode(13, OUTPUT); // Pin per il segnale di negativo
+  
+  Serial.begin(9600);
+}
+
+// Funzione principale che viene eseguita in loop
+void loop() {
+  // Lettura del valore analogico della temperatura
+  step = analogRead(A0);
+  
+  // Conversione del valore analogico in tensione
+  volt = 0.00487 * step;
+  
+  // Conversione della tensione in temperatura "virtuale"
+  temp = (volt - 0.5) / 0.01;
+  
+  // Arrotondamento della temperatura e separazione in unità e decine
+  tempint = round(temp);
+  if (tempint < 0) {
+    digitalWrite(13, HIGH); // Visualizzazione del segnale di negativo
+  } else {
+    digitalWrite(13, LOW); // Visualizzazione del segnale di positivo
+  }
+  tempint = abs(tempint);
+  unit = tempint % 10;
+  dec = tempint / 10;
+  
+  // Stampa a schermo dei valori di volt, temperatura, decine e unità
+  Serial.println(volt);
+  Serial.println(temp);
+  Serial.println(dec);
+  Serial.println(unit);
+  Serial.println("----------------");
+  
+  	delay(200);
+  // Attesa di 200ms
+  
+//estrapoliamo il bit dalla variabile unità da dare al driver
+  unitd0=bitRead(unit,0);
+  unitd1=bitRead(unit,1);
+  unitd2=bitRead(unit,2);
+  unitd3=bitRead(unit,3);
+  
+//estrapoliamo il bit dalla variabile delle decine da dare al driver
+  decd0=bitRead(dec,0);
+  decd1=bitRead(dec,1);
+  decd2=bitRead(dec,2);
+  decd3=bitRead(dec,3);
+   
+digitalWrite(11,unitd0);
+digitalWrite(10,unitd1);
+digitalWrite(9,unitd2);
+digitalWrite(8,unitd3);
+digitalWrite(6,decd0);
+digitalWrite(5,decd1);
+digitalWrite(4,decd2);
+digitalWrite(3,decd3);
+
+  
+}
